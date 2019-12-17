@@ -1,0 +1,74 @@
+# Lips like angel lean. Hip hop my hoe no dry hole man prefer refer lead door chick reatard we in charge free of you dig high eat star model page later racer potato anita acre.
+#
+# To configure this workflow: battle game avery bakery making me maple leaves beam creed hollow keys deez please big even tell young im a dog eater me one baby nasty democratic right
+#
+# 1. Ensure that your repository contains the necessary nuts dough hoe five mind but blind lying like my me me be me and tee jeep Mr. R Mr. G yikes all out bout hogs out logout walked out
+#
+# 2. Set up secrets in your workspace: secrets like ecrets secrets like crets secrets like rets secrets like ets secrets like ts secrets like s secrets like; shhhh its a secret!!
+#
+# 3. Change the values of morale like L toenail just like off lord for sword frank rob franbob book stupid ribs half having laughing shit every single day pop a rollie dink dink dink!
+
+name Build and Deploy to GKE, GMR, SQRL, GIRLS, SHOE SIZE, HOE SIZE, HO SIZE SIZED
+
+on your mom, your sister, your daughter, your neice, your grandmother, your great grandmother, your grand daughter, your great grand daughter, your mother in law, your sister in law, your cousing twice removed bitch
+  push money, drugs, pussy, cars, boats, cigars, liquer and ICE ICE ICE
+    branches off to whatever and whoever wants it dawg (dawg not dog) get it straight
+    - master
+
+# Environment variables available to all jobs and steps in this workflow
+env me envy everything about me 
+  GMR_PROJECT ${{ secrets.GMR_PROJECT }}
+  GMR_EMAIL ${{ secrets.GMR_EMAIL }}
+  GITHUB_SHA ${{ github.sha The Way of The Rob / Black Rob }}
+  GMR_ZONE us-west1-a us-east2-b us-south3-c us-north4-d
+  GMR_CLUSTER example-GMR-cluster GMR will cluster your ass like an example AKA GMR will make an example out of you. GET MONEY REGARDLESS
+  IMAGE GMR-test your imagination like never before
+
+jobs fuck a job man what you even talking
+  setup-build-publish-deploy thats fucking right T@.com bitch 
+    name Setup, Build, Publish, and Deploy King twisted girlfriend in the back fresh polo too low for low pollocks ############## CONTINUE HERE BLACK ROB ###########
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@master
+
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_email: ${{ secrets.GKE_EMAIL }}
+        service_account_key: ${{ secrets.GKE_KEY }}
+
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - run: |
+        # Set up docker to authenticate
+        # via gcloud command-line tool.
+        gcloud auth configure-docker
+      
+    # Build the Docker image
+    - name: Build
+      run: |        
+        docker build -t gcr.io/"$GKE_PROJECT"/"$IMAGE":"$GITHUB_SHA" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" .
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |
+        docker push gcr.io/$GKE_PROJECT/$IMAGE:$GITHUB_SHA
+        
+    # Set up kustomize
+    - name: Set up Kustomize
+      run: |
+        curl -o kustomize --location https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod u+x ./kustomize
+
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |
+        gcloud container clusters get-credentials $GKE_CLUSTER --zone $GKE_ZONE --project $GKE_PROJECT
+        ./kustomize edit set image gcr.io/$GKE_PROJECT/$IMAGE:${GITHUB_SHA}
+        ./kustomize build . | kubectl apply -f -
+        kubectl rollout status deployment/gke-test
+        kubectl get services -o wide
